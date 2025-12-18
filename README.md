@@ -39,38 +39,47 @@ Siga as instruções específicas para o seu Sistema Operacional.
 ### 2. Instalação do Projeto
 Abra o seu terminal (Terminal, PowerShell ou Git Bash) e rode os comandos abaixo na ordem:
 
-# 1. Clone o repositório
+#### 1. Clone o repositório
 git clone https://github.com/jpcolombari/TechChallengeApp.git
 
-# 2. Entre na pasta do projeto
+#### 2. Entre na pasta do projeto
 cd TechChallengeApp
 
-# 3. Instale todas as dependências do projeto
-# Isso vai baixar o React, o Expo e todas as bibliotecas que estamos usando.
+#### 3. Instale todas as dependências do projeto
+#### Isso vai baixar o React, o Expo e todas as bibliotecas que estamos usando.
 npm install
 
-# DICA: Se der erro de conflito de dependências (peer deps), use o comando abaixo:
-# npm install --legacy-peer-deps
+##### DICA: Se der erro de conflito de dependências (peer deps), use o comando abaixo:
+npm install --legacy-peer-deps
 
-### 3. Rodando a Aplicação
+### 3. Rodando a A### 3. Rodando a Aplicação
 
-**Para usuários de Mac 🍎:**
-Você pode usar o Simulador do iPhone (se tiver XCode instalado) ou seu celular físico.
+Escolha como você prefere testar o aplicativo:
 
-npx expo start -c
+---
+OPÇÃO A: NO SEU CELULAR FÍSICO (Recomendado para Todos)
+Funciona em qualquer combinação (PC Windows + iPhone, Mac + Android, Linux + iPhone, etc).
 
-* Aperte "i" no teclado para abrir no Simulador iOS.
-* Ou escaneie o QR Code com a câmera do seu iPhone.
+1. Certifique-se de que seu celular e seu computador estão no **mesmo Wi-Fi**.
+2. No terminal do computador, rode:
+   npx expo start -c
+3. No seu Celular:
+   * **iPhone:** Abra a câmera, escaneie o QR Code do terminal e clique para abrir no "Expo Go".
+   * **Android:** Abra o app "Expo Go" e escaneie o QR Code.
 
-**Para usuários de Windows / Linux 🪟🐧:**
-A forma recomendada é usar o seu celular físico.
-
-npx expo start -c
-
-* Abra o app **Expo Go** no seu celular.
-* Escaneie o QR Code que apareceu no terminal.
-* **Nota:** Seu celular e o PC devem estar no mesmo Wi-Fi. Se der erro de conexão, pare o servidor e rode com o túnel:
+⚠️ Dica de Conexão: Se o QR Code não funcionar ou der erro de rede (comum em redes corporativas ou alguns roteadores), pare o servidor e rode usando o modo túnel:
 npx expo start --tunnel
+
+---
+OPÇÃO B: EMULADORES NO COMPUTADOR (Simuladores Virtuais)
+
+Se você não quiser usar o celular físico, pode rodar uma versão virtual no seu PC.
+
+* **Android Emulator:** Funciona em Windows, Mac e Linux. (Requer instalar o Android Studio e criar um dispositivo virtual).
+  * Com o emulador aberto, rode o projeto e aperte a tecla "a" no terminal.
+
+* **iOS Simulator:** Funciona APENAS em Mac (Restrição da Apple). (Requer instalar o XCode).
+  * Rode o projeto e aperte a tecla "i" no terminal.
 
 ---
 
