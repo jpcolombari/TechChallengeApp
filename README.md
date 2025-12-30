@@ -115,6 +115,66 @@ A estrutura foi desenhada para separar responsabilidades e facilitar o trabalho 
     * **Auth/**: Telas públicas (Login).
     * **App/**: Telas privadas. Contém os arquivos base para cada funcionalidade (Feed, Forms, Listas Admin).
 
+## 📂 Gestão de Usuários 
+
+As telas de **Gestão de Usuários** são responsáveis por permitir que usuários com perfil **PROFESSOR** realizem o cadastro, edição, listagem e exclusão de usuários do sistema (professores e alunos), respeitando as regras de acesso definidas pela aplicação.
+
+Essa funcionalidade está disponível no aplicativo através do seguinte caminho:
+
+> **Login como Professor → Aba “Admin” → Gerenciar Usuários**
+
+---
+
+### 📄 ManageUsersScreen.tsx
+
+- Tela administrativa responsável pela **listagem de usuários**.
+- Realiza a busca dos dados através do endpoint:
+  - `GET /users`
+- Consome a instância centralizada da API (`src/services/api.ts`), garantindo:
+  - uso automático do Token JWT via interceptor
+  - padronização das chamadas HTTP
+- Implementa **filtro visual por perfil**:
+  - **PROFESSOR**
+  - **STUDENT**
+- Disponibiliza ações administrativas diretamente na listagem:
+  - **Criar** novo usuário
+  - **Editar** usuários existentes
+  - **Excluir** usuários, com confirmação prévia
+- Utiliza o hook `useFocusEffect` para garantir que a lista seja **recarregada automaticamente** sempre que a tela recebe foco (por exemplo, ao retornar do formulário).
+
+---
+
+### 📄 UserFormScreen.tsx
+
+- Tela responsável pelo **cadastro e edição de usuários**.
+- Opera em dois modos distintos:
+  - **Create**: criação de novos usuários
+  - **Edit**: edição de usuários já cadastrados
+- O modo de funcionamento é definido através de parâmetros de navegação (`route.params`).
+- Campos disponíveis no formulário:
+  - Nome
+  - Email
+  - Senha (opcional no modo edição)
+  - Perfil do usuário (**PROFESSOR** ou **STUDENT**)
+- Implementa melhoria de **experiência do usuário (UX)**:
+  - Ícone para **visualizar/ocultar a senha digitada**, reduzindo erros de digitação em dispositivos móveis.
+- Integração com a API REST:
+  - Criação de usuário:
+    - `POST /users`
+  - Edição de usuário:
+    - `PUT /users/{id}`
+- Após a submissão bem-sucedida, a tela retorna automaticamente para a listagem, que é atualizada ao recuperar o foco.
+
+---
+
+### 🔐 Controle de Acesso e Autorização
+
+- As telas de Gestão de Usuários são acessíveis **exclusivamente para usuários com perfil PROFESSOR**.
+- A proteção de acesso é garantida pela camada de navegação:
+  - As rotas administrativas só são registradas no Stack de navegação quando o usuário autenticado possui o perfil adequado.
+- O perfil do usuário logado é obtido através do hook `useAuth()`, mantendo a lógica de autorização centralizada e consistente em toda a aplicação.
+
+
 ---
 
 ## 📱 Funcionalidades Implementadas
@@ -122,82 +182,3 @@ A estrutura foi desenhada para separar responsabilidades e facilitar o trabalho 
 1.  **Autenticação Segura:** Login persistente (o usuário continua logado ao fechar o app).
 2.  **Proteção de Rotas:** Alunos não conseguem acessar telas de criação de post ou gestão de usuários.
 3.  **UI Padronizada:** Uso do React Native Paper para componentes visuais consistentes.
-4. Gestão de Usuários (Painel Administrativo)
-
-Funcionalidade disponível exclusivamente para usuários com perfil PROFESSOR, acessível pelo caminho:
-
-Login como Professor → Aba “Admin” → Gerenciar Usuários
-
-As seguintes funcionalidades foram implementadas:
-
-Listagem de Usuários
-
-Exibe todos os usuários cadastrados no sistema.
-
-Permite filtragem visual por perfil:
-
-PROFESSOR
-
-STUDENT
-
-Os dados são obtidos através do endpoint:
-
-GET /users
-
-Criação de Usuário
-
-Formulário dedicado para cadastro de novos usuários.
-
-Campos disponíveis:
-
-Nome
-
-Email
-
-Senha
-
-Perfil (Professor ou Student)
-
-A senha possui opção de visualização/ocultação para melhor usabilidade.
-
-Integração com o endpoint:
-
-POST /users
-
-Edição de Usuário
-
-Permite editar dados de usuários já cadastrados.
-
-Os campos de nome, email e perfil são pré-preenchidos.
-
-O campo de senha é opcional (somente enviado se preenchido).
-
-Integração com o endpoint:
-
-PUT /users/{id}
-
-Exclusão de Usuário
-
-Disponível diretamente na listagem.
-
-Possui confirmação antes da remoção.
-
-Integração com o endpoint:
-
-DELETE /users/{id}
-
-Todas as ações de criação, edição e exclusão atualizam automaticamente a listagem ao retornar para a tela de gerenciamento.
-
-🔐 5. Controle de Acesso e Segurança
-
-O gerenciamento de usuários é protegido por controle de acesso baseado em perfil (RBAC).
-
-Apenas usuários autenticados com perfil PROFESSOR conseguem:
-
-Acessar o Painel Administrativo.
-
-Gerenciar usuários (CRUD).
-
-Alunos (STUDENT) não visualizam nem conseguem acessar essas rotas.
-
-O token JWT é injetado automaticamente em todas as requisições via interceptor do Axios, garantindo segurança e consistência nas chamadas à API.
