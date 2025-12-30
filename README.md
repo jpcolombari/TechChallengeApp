@@ -122,3 +122,82 @@ A estrutura foi desenhada para separar responsabilidades e facilitar o trabalho 
 1.  **Autenticação Segura:** Login persistente (o usuário continua logado ao fechar o app).
 2.  **Proteção de Rotas:** Alunos não conseguem acessar telas de criação de post ou gestão de usuários.
 3.  **UI Padronizada:** Uso do React Native Paper para componentes visuais consistentes.
+4. Gestão de Usuários (Painel Administrativo)
+
+Funcionalidade disponível exclusivamente para usuários com perfil PROFESSOR, acessível pelo caminho:
+
+Login como Professor → Aba “Admin” → Gerenciar Usuários
+
+As seguintes funcionalidades foram implementadas:
+
+Listagem de Usuários
+
+Exibe todos os usuários cadastrados no sistema.
+
+Permite filtragem visual por perfil:
+
+PROFESSOR
+
+STUDENT
+
+Os dados são obtidos através do endpoint:
+
+GET /users
+
+Criação de Usuário
+
+Formulário dedicado para cadastro de novos usuários.
+
+Campos disponíveis:
+
+Nome
+
+Email
+
+Senha
+
+Perfil (Professor ou Student)
+
+A senha possui opção de visualização/ocultação para melhor usabilidade.
+
+Integração com o endpoint:
+
+POST /users
+
+Edição de Usuário
+
+Permite editar dados de usuários já cadastrados.
+
+Os campos de nome, email e perfil são pré-preenchidos.
+
+O campo de senha é opcional (somente enviado se preenchido).
+
+Integração com o endpoint:
+
+PUT /users/{id}
+
+Exclusão de Usuário
+
+Disponível diretamente na listagem.
+
+Possui confirmação antes da remoção.
+
+Integração com o endpoint:
+
+DELETE /users/{id}
+
+Todas as ações de criação, edição e exclusão atualizam automaticamente a listagem ao retornar para a tela de gerenciamento.
+
+🔐 5. Controle de Acesso e Segurança
+
+O gerenciamento de usuários é protegido por controle de acesso baseado em perfil (RBAC).
+
+Apenas usuários autenticados com perfil PROFESSOR conseguem:
+
+Acessar o Painel Administrativo.
+
+Gerenciar usuários (CRUD).
+
+Alunos (STUDENT) não visualizam nem conseguem acessar essas rotas.
+
+O token JWT é injetado automaticamente em todas as requisições via interceptor do Axios, garantindo segurança e consistência nas chamadas à API.

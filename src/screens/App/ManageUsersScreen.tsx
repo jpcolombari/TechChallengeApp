@@ -41,7 +41,7 @@ export function ManageUsersScreen() {
       const response = await api.get<UsersResponse>("/users");
       setUsers(response.data?.data ?? []);
     } catch (err: any) {
-      Alert.alert("Error", err?.message ?? "Failed to load users");
+      Alert.alert("Error", err?.message ?? "Erro ao carregar usuários");
       setUsers([]);
     } finally {
       setLoading(false);
@@ -131,7 +131,7 @@ export function ManageUsersScreen() {
             <Card>
               <Card.Title
                 title={item.name}
-                subtitle={`${item.email} • ${item.role}`}
+                subtitle={`${item.email} • ${item.role === "PROFESSOR" ? "Professor" : "Estudante"}`}
               />
               <Card.Actions>
                 <Button onPress={() => onEdit(item)}>Editar</Button>
