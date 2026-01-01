@@ -115,6 +115,66 @@ A estrutura foi desenhada para separar responsabilidades e facilitar o trabalho 
     * **Auth/**: Telas públicas (Login).
     * **App/**: Telas privadas. Contém os arquivos base para cada funcionalidade (Feed, Forms, Listas Admin).
 
+## 📂 Gestão de Usuários 
+
+As telas de **Gestão de Usuários** são responsáveis por permitir que usuários com perfil **PROFESSOR** realizem o cadastro, edição, listagem e exclusão de usuários do sistema (professores e alunos), respeitando as regras de acesso definidas pela aplicação.
+
+Essa funcionalidade está disponível no aplicativo através do seguinte caminho:
+
+> **Login como Professor → Aba “Admin” → Gerenciar Usuários**
+
+---
+
+### 📄 ManageUsersScreen.tsx
+
+- Tela administrativa responsável pela **listagem de usuários**.
+- Realiza a busca dos dados através do endpoint:
+  - `GET /users`
+- Consome a instância centralizada da API (`src/services/api.ts`), garantindo:
+  - uso automático do Token JWT via interceptor
+  - padronização das chamadas HTTP
+- Implementa **filtro visual por perfil**:
+  - **PROFESSOR**
+  - **STUDENT**
+- Disponibiliza ações administrativas diretamente na listagem:
+  - **Criar** novo usuário
+  - **Editar** usuários existentes
+  - **Excluir** usuários, com confirmação prévia
+- Utiliza o hook `useFocusEffect` para garantir que a lista seja **recarregada automaticamente** sempre que a tela recebe foco (por exemplo, ao retornar do formulário).
+
+---
+
+### 📄 UserFormScreen.tsx
+
+- Tela responsável pelo **cadastro e edição de usuários**.
+- Opera em dois modos distintos:
+  - **Create**: criação de novos usuários
+  - **Edit**: edição de usuários já cadastrados
+- O modo de funcionamento é definido através de parâmetros de navegação (`route.params`).
+- Campos disponíveis no formulário:
+  - Nome
+  - Email
+  - Senha (opcional no modo edição)
+  - Perfil do usuário (**PROFESSOR** ou **STUDENT**)
+- Implementa melhoria de **experiência do usuário (UX)**:
+  - Ícone para **visualizar/ocultar a senha digitada**, reduzindo erros de digitação em dispositivos móveis.
+- Integração com a API REST:
+  - Criação de usuário:
+    - `POST /users`
+  - Edição de usuário:
+    - `PUT /users/{id}`
+- Após a submissão bem-sucedida, a tela retorna automaticamente para a listagem, que é atualizada ao recuperar o foco.
+
+---
+
+### 🔐 Controle de Acesso e Autorização
+
+- As telas de Gestão de Usuários são acessíveis **exclusivamente para usuários com perfil PROFESSOR**.
+- A proteção de acesso é garantida pela camada de navegação:
+  - As rotas administrativas só são registradas no Stack de navegação quando o usuário autenticado possui o perfil adequado.
+- O perfil do usuário logado é obtido através do hook `useAuth()`, mantendo a lógica de autorização centralizada e consistente em toda a aplicação.
+
+
 ---
 
 ## 📱 Funcionalidades Implementadas
