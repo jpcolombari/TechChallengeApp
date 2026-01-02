@@ -1,38 +1,41 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useCallback } from "react";
 import { View, StyleSheet, FlatList, ActivityIndicator } from "react-native";
 import { FAB, Card, Text, Searchbar } from "react-native-paper";
 import { useAuth } from "../../hooks/useAuth";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { AppStackParamList } from "../../routes/AppRoutes";
+import { api } from "../../services/api";
 
 type NavigationProps = NativeStackNavigationProp<AppStackParamList>;
 
 export function HomeScreen() {
   const { user } = useAuth();
   const navigation = useNavigation<NavigationProps>();
-  const [searchQuery, setSearchQuery] = React.useState("");
+  const [searchQuery, setSearchQuery] = useState("");
   const [posts, setPosts] = useState<any[]>([]);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [refreshing, setRefreshing] = useState(true);
   const [hasMore, setHasMore] = useState(true);
 
-  async function loadPosts(pageNumber = 1) {
-    if (loading || !hasMore) return;
+  async function loadPosts(pageNumber = 1, shouldRefresh = false) {
+    if (loading || (!hasMore && !shouldRefresh)) return;
+
+    if (shouldRefresh) setRefreshing(true);
     setLoading(true);
+
     try {
-      const response = await fetch(
-        `https://techchallengeblog.onrender.com/posts?page=${pageNumber}&limit=3`
-      );
-      const result = await response.json();
-      const newPosts = result.data || [];
+      const response = await api.get(`/posts?page=${pageNumber}&limit=5`);
+      const newPosts = response.data.data || [];
 
       if (newPosts.length === 0) {
         setHasMore(false);
       } else {
         setPosts((prev) => {
-          const all = [...prev, ...newPosts];
-          return all.filter(
+          const baseList = shouldRefresh ? [] : prev;
+          const combined = [...baseList, ...newPosts];
+          return combined.filter(
             (post, index, self) =>
               index === self.findIndex((p) => p._id === post._id)
           );
@@ -43,16 +46,29 @@ export function HomeScreen() {
       console.error("Erro ao buscar posts:", error);
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   }
 
-  useEffect(() => {
-    loadPosts(1);
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      setHasMore(true);
+      loadPosts(1, true);
+    }, [])
+  );
 
   const filteredPosts = posts.filter((post) =>
     post.title.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  if (refreshing && posts.length === 0) {
+    return (
+      <View style={styles.loadingCenter}>
+        <ActivityIndicator size="large" color="#6200ee" />
+        <Text style={{ marginTop: 10 }}>Carregando posts...</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -68,6 +84,8 @@ export function HomeScreen() {
       <FlatList
         data={filteredPosts}
         keyExtractor={(item) => item._id}
+        style={{ width: "100%" }}
+        contentContainerStyle={styles.list}
         renderItem={({ item }) => (
           <Card
             style={styles.card}
@@ -81,16 +99,21 @@ export function HomeScreen() {
             <Card.Title title={item.title} subtitle={`Autor: ${item.author}`} />
             <Card.Content>
               <Text variant="bodyMedium" numberOfLines={2}>
-                {item.summary}
+                {item.summary || item.content}
               </Text>
             </Card.Content>
           </Card>
         )}
-        contentContainerStyle={styles.list}
-        onEndReached={() => loadPosts(page + 1)} // 👈 carrega mais ao rolar
-        onEndReachedThreshold={0.5} // dispara quando chega a 50% do fim
+        onEndReached={() => loadPosts(page + 1)}
+        onEndReachedThreshold={0.5}
         ListFooterComponent={
-          loading ? <ActivityIndicator size="large" color="#6200ee" /> : null
+          loading && !refreshing ? (
+            <ActivityIndicator
+              size="large"
+              color="#6200ee"
+              style={{ marginVertical: 20 }}
+            />
+          ) : null
         }
       />
 
@@ -99,7 +122,8 @@ export function HomeScreen() {
           icon="plus"
           style={styles.fab}
           label="Novo Post"
-          onPress={() => navigation.navigate("PostForm", {})}
+          color="white"
+          onPress={() => navigation.navigate("PostForm", { post: undefined })}
         />
       )}
     </View>
@@ -107,11 +131,22 @@ export function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#f0f0f0" },
-  header: { padding: 16, backgroundColor: "#fff", elevation: 2 },
+  container: { flex: 1, backgroundColor: "#f5f5f5" },
+  loadingCenter: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#f5f5f5",
+  },
+  header: {
+    padding: 16,
+    backgroundColor: "#fff",
+    elevation: 4,
+    zIndex: 1,
+  },
   search: { backgroundColor: "#f0f0f0" },
-  list: { padding: 16, paddingBottom: 80 },
-  card: { marginBottom: 16 },
+  list: { padding: 16, paddingBottom: 100 },
+  card: { marginBottom: 16, elevation: 2 },
   fab: {
     position: "absolute",
     margin: 16,
